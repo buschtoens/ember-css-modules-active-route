@@ -7,7 +7,10 @@ const Router = EmberRouter.extend({
   rootURL: config.rootURL
 });
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-Router.map(function() {});
+Router.map(function() {
+  this.route('foo', function() {
+    this.route('bar');
+  });
+});
 
 export default Router;
