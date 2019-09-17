@@ -8,7 +8,8 @@
 [![dependencies](https://img.shields.io/david/buschtoens/ember-css-modules-active-route.svg)](https://david-dm.org/buschtoens/ember-css-modules-active-route)
 [![devDependencies](https://img.shields.io/david/dev/buschtoens/ember-css-modules-active-route.svg)](https://david-dm.org/buschtoens/ember-css-modules-active-route)
 
-`:route` selector to apply styles to the root element, when a route is active.
+`:app-root` and `:document-root` selectors to apply styles to the root element,
+when a route is active.
 
 ## Installation
 
@@ -17,6 +18,17 @@ ember install ember-css-modules-active-route ember-css-modules
 ```
 
 ## Usage
+
+- **`:app-root`**: Maps to the [root element][root-element] of your application.
+  Usually `<body>`.
+- **`:document-root`**: Maps to the [`documentElement`][document-element] /
+  [`:root`][css-root], which is the `<html>` element.
+
+[root-element]: https://guides.emberjs.com/release/configuring-ember/embedding-applications/
+[document-element]: https://developer.mozilla.org/en-US/docs/Web/API/Document/documentElement
+[css-root]: https://developer.mozilla.org/en-US/docs/Web/CSS/:root
+
+### Example
 
 ```ts
 Router.map(function() {
@@ -30,7 +42,7 @@ Router.map(function() {
 ```css
 /* app/foo/styles.css */
 
-:route {
+:app-root {
   background: green;
 }
 ```
@@ -38,14 +50,14 @@ Router.map(function() {
 ```css
 /* app/foo/index/styles.css */
 
-:route {
+:app-root {
   background: red;
 }
 ```
 
-When the user enters the `foo` route, the `:route` pseudo-selector will be
-applied to the `:root` element (`<html>`). The background of the page will be
-`red`, as `foo.index` overrides `foo`.
+When the user enters the `foo` route, the `:app-root` pseudo-selector will be
+applied to the app's `rootElement` (`<body>`). The background of the page will
+be `red`, as `foo.index` overrides `foo`.
 
 When the user navigates to `foo.bar`, the background will turn `green`, as the
 user has left the `foo.index` route and the override no longer takes effect.
@@ -55,15 +67,18 @@ as no route styles are active any more.
 
 ### Combining Selectors
 
-You can also combine the `:route` selector with other regular selectors. For
-instance, instead of just using `:route`, which targets the `:root` element
-(`<html>`), you can target `<body>` instead:
+You can also combine the `:app-root` & `:document-root` selectors with other
+regular selectors. For instance, instead of just using `:document-root`, which
+targets the `:root` element (`<html>`), you can target child elements instead:
 
 ```css
-:route body {
-  background: red;
+:document-root :global(.some-cookie-banner) {
+  display: none;
 }
 ```
+
+In this example, `<div class="some-cookie-banner">` is inserted by the backend
+and would be hidden, while the user is on a certain route.
 
 ### Specificity
 
@@ -76,11 +91,11 @@ declarations in parent routes, without the source order being relevant.
 You can also manually set the specificity, like so:
 
 ```css
-:route(3) {
+:app-root(3) {
   background: red;
 }
 
-:route(2) {
+:app-root(2) {
   background: green;
 }
 ```
@@ -89,40 +104,41 @@ The background will be `red`, as `3` is a higher specificity than `2`.
 
 ## How does it work?
 
-The `:route` / `:route(n)` selector is replaced with a "magic" class name
-selector by [`lib/route-plugin.js`](lib/route-plugin.js). This selector is
-repeated `n` times to raise it to the necessary specificity level.
+The `:app-root` / `:app-root(n)` and `:document-root` / `:document-root(n)`
+selectors are replaced with "magic" class name selectors by
+[`lib/route-plugin.js`](lib/route-plugin.js). These selectors are repeated `n`
+times to raise them to the necessary specificity level.
 
-`n` can either be specified explicitly as `:route(n)`, or when used as `:route`
-will be derived from the depth of route nesting by counting the `/` in the file
-path of the respective `styles.css`. This ensures that rules in nested child
-routes override rule from their parent routes.
+`n` can either be specified explicitly as `:app-root(n)`, or when used as
+`:app-root` will be derived from the depth of route nesting by counting the `/`
+in the file path of the respective `styles.css`. This ensures that rules in
+nested child routes override rules from their parent routes.
 
 ```css
-:route {
+:app-root {
   background: yellow;
 }
-:route(3) {
+:app-root(3) {
   background: green;
 }
-:route(1) body {
+:app-root(1) body {
   background: blue;
 }
 
 /* becomes */
 
 /* Class name may be repeated more often depending on level of nesting. */
-.css-modules-active-route.css-modules-active-route {
+.css-modules-active-route-app.css-modules-active-route-app {
   background: yellow;
 }
 
 /* With an explicit `n` provided, the class name is repeated that many times. */
-.css-modules-active-route.css-modules-active-route.css-modules-active-route {
+.css-modules-active-route-app.css-modules-active-route-app.css-modules-active-route-app {
   background: green;
 }
 
 /* Combining with other selectors is possible. */
-.css-modules-active-route body {
+.css-modules-active-route-app body {
   background: blue;
 }
 ```

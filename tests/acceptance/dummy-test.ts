@@ -6,11 +6,11 @@ module('Acceptance | dummy', function(hooks) {
   setupApplicationTest(hooks);
 
   test('it works', async function(assert) {
-    const rootElement = document.documentElement;
+    const rootElement = this.element;
 
     await visit('/');
     assert.dom(rootElement).hasStyle({
-      backgroundColor: 'rgb(255, 255, 255)',
+      backgroundColor: 'rgba(0, 0, 0, 0)',
       color: 'rgb(0, 0, 0)'
     });
 

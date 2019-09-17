@@ -1,5 +1,6 @@
 import { getOwner } from '@ember/application';
 import ApplicationInstance from '@ember/application/instance';
+import { assert } from '@ember/debug';
 import { action } from '@ember/object';
 import RouteInfo from '@ember/routing/-private/route-info';
 import Transition from '@ember/routing/-private/transition';
@@ -13,6 +14,18 @@ import {
 
 type Styles = Record<string, string>;
 
+function resolveElement(elementOrSelector: Element | string) {
+  const element =
+    typeof elementOrSelector === 'string'
+      ? document.querySelector(elementOrSelector)
+      : elementOrSelector;
+  assert(
+    `'${elementOrSelector}' is not an element.`,
+    element instanceof Element
+  );
+  return element!;
+}
+
 export default class CssModulesActiveRouteService extends Service {
   @service router!: RouterService & {
     routeWillChange(transition: Transition): void;
@@ -20,22 +33,20 @@ export default class CssModulesActiveRouteService extends Service {
   };
 
   /**
-   * The magic pseudo selector is rewritten to a regular class name, so that we
-   * can resolve it here.
+   * The magic pseudo selectors are rewritten to regular class names, so that we
+   * can resolve them here.
    */
-  public magicClassName = 'css-modules-active-route';
+  public targetElements = {
+    'css-modules-active-route-app': resolveElement(getOwner(this).rootElement),
+    'css-modules-active-route-document': document.documentElement
+  };
 
   /**
-   * This is the element the class names will be applied to.
-   */
-  public rootElement = document.documentElement;
-
-  /**
-   * This array is used to keep track of the currently applied class names, so
+   * This map is used to keep track of the currently applied class names, so
    * that we can diff it with the new class names, without interacting with the
    * DOM.
    */
-  private currentClassNames: string[] = [];
+  private currentClassNames: Record<string, string[]> = {};
 
   init() {
     super.init();
@@ -55,7 +66,8 @@ export default class CssModulesActiveRouteService extends Service {
    * Called when a transition begins or ends.
    *
    * Resolves the target route hierarchy into styles and then gets the class
-   * names from these styles, which are then applied to the `rootElement`.
+   * names from these styles, which are then applied to the corresponding target
+   * elements.
    */
   @action
   private handleRouteChange(transition: Transition) {
@@ -63,18 +75,34 @@ export default class CssModulesActiveRouteService extends Service {
     const styles = routeNames
       .map(name => this.resolveStylesForRoute(name))
       .filter(Boolean) as Styles[];
-    const newClassNames = this.getClassNamesFromStyles(styles);
 
-    const oldClassNames = this.currentClassNames;
-    const staleClassNames = oldClassNames.filter(
-      name => !newClassNames.includes(name)
-    );
-    this.currentClassNames = newClassNames;
+    this.updateClassNames(styles);
+  }
 
-    // IE11 does not support multiple arguments, so we need to iterate.
-    // https://caniuse.com/#search=classlist
-    for (const name of staleClassNames) this.rootElement.classList.remove(name);
-    for (const name of newClassNames) this.rootElement.classList.add(name);
+  /**
+   * Updates all elements listed in `targetElements` with the respective class
+   * names from `styles`.
+   */
+  updateClassNames(styles: Styles[]) {
+    for (const [magicClassName, element] of Object.entries(
+      this.targetElements
+    )) {
+      const newClassNames = this.getClassNamesFromStyles(
+        styles,
+        magicClassName
+      );
+
+      const oldClassNames = this.currentClassNames[magicClassName] || [];
+      const staleClassNames = oldClassNames.filter(
+        name => !newClassNames.includes(name)
+      );
+      this.currentClassNames[magicClassName] = newClassNames;
+
+      // IE11 does not support multiple arguments, so we need to iterate.
+      // https://caniuse.com/#search=classlist
+      for (const name of staleClassNames) element.classList.remove(name);
+      for (const name of newClassNames) element.classList.add(name);
+    }
   }
 
   /**
@@ -121,7 +149,7 @@ export default class CssModulesActiveRouteService extends Service {
   /**
    * Returns an array of class names to be applied to the root element.
    */
-  private getClassNamesFromStyles(styles: Styles[]) {
+  private getClassNamesFromStyles(styles: Styles[], magicClassName: string) {
     return ([] as string[])
       .concat(
         // ES 5 `.flatMap()`
@@ -129,7 +157,7 @@ export default class CssModulesActiveRouteService extends Service {
           // One class name may map to multiple class names, when using `composes`
           // for instance, so we split them up to get a flat array of single class
           // names.
-          .map(classNames => (classNames[this.magicClassName] || '').split(' '))
+          .map(classNames => (classNames[magicClassName] || '').split(' '))
       )
       .filter(Boolean);
   }
