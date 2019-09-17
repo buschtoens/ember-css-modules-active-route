@@ -1,19 +1,13 @@
 <nav>
   <ul>
     <li>
-      <LinkTo @route="index">
-        index
-      </LinkTo>
+      {{link-to "index" "index"}}
     </li>
     <li>
-      <LinkTo @route="foo">
-        foo
-      </LinkTo>
+      {{link-to "foo" "foo"}}
     </li>
     <li>
-      <LinkTo @route="foo.bar">
-        foo.bar
-      </LinkTo>
+      {{link-to "foo.bar" "foo.bar"}}
     </li>
   </ul>
 </nav>
