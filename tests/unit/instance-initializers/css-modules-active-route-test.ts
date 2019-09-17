@@ -1,11 +1,15 @@
+import { setupTest } from 'ember-qunit';
+import { module, test } from 'qunit';
+
 import Application from '@ember/application';
 
 import { initialize } from 'dummy/instance-initializers/css-modules-active-route';
-import { module, test } from 'qunit';
-import { setupTest } from 'ember-qunit';
+
 import destroyApp from '../../helpers/destroy-app';
 
-module('Unit | Instance Initializer | css-modules-active-route', function(hooks) {
+module('Unit | Instance Initializer | css-modules-active-route', function(
+  hooks
+) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {
