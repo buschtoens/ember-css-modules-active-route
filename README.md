@@ -121,7 +121,7 @@ nested child routes override rules from their parent routes.
 :app-root(3) {
   background: green;
 }
-:app-root(1) body {
+:app-document(1) body {
   background: blue;
 }
 
@@ -138,7 +138,7 @@ nested child routes override rules from their parent routes.
 }
 
 /* Combining with other selectors is possible. */
-.css-modules-active-route-app body {
+.css-modules-active-route-document body {
   background: blue;
 }
 ```
