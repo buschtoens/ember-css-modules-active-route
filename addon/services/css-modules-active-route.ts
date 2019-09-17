@@ -23,7 +23,7 @@ export default class CssModulesActiveRouteService extends Service {
    * The magic pseudo selector is rewritten to a regular class name, so that we
    * can resolve it here.
    */
-  public magicClassName = 'route';
+  public magicClassName = 'css-modules-active-route';
 
   /**
    * This is the element the class names will be applied to.
@@ -121,15 +121,16 @@ export default class CssModulesActiveRouteService extends Service {
    * Returns an array of class names to be applied to the root element.
    */
   private getClassNamesFromStyles(styles: Styles[]) {
-    return ([] as string[]).concat(
-      // ES 5 `.flatMap()`
-      ...styles
-        // One class name may map to multiple class names, when using `composes`
-        // for instance, so we split them up to get a flat array of single class
-        // names.
-        .map(classNames => classNames[this.magicClassName].split(' '))
-        .filter(Boolean)
-    );
+    return ([] as string[])
+      .concat(
+        // ES 5 `.flatMap()`
+        ...styles
+          // One class name may map to multiple class names, when using `composes`
+          // for instance, so we split them up to get a flat array of single class
+          // names.
+          .map(classNames => (classNames[this.magicClassName] || '').split(' '))
+      )
+      .filter(Boolean);
   }
 }
 
