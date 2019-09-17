@@ -1,38 +1,22 @@
-ember-css-modules-active-route
-==============================================================================
+# ember-css-modules-active-route
 
-[Short description of the addon.]
+`:route` selector to apply styles to the root element, when a route is active.
 
-
-Compatibility
-------------------------------------------------------------------------------
-
-* Ember.js v3.4 or above
-* Ember CLI v2.13 or above
-* Node.js v8 or above
-
-
-Installation
-------------------------------------------------------------------------------
+## Installation
 
 ```
-ember install ember-css-modules-active-route
+ember install ember-css-modules-active-route ember-css-modules
 ```
 
+## Usage
 
-Usage
-------------------------------------------------------------------------------
+```css
+/* app/foo/styles.css */
 
-[Longer description of how to use the addon in apps.]
+:route {
+  background: green;
+}
+```
 
-
-Contributing
-------------------------------------------------------------------------------
-
-See the [Contributing](CONTRIBUTING.md) guide for details.
-
-
-License
-------------------------------------------------------------------------------
-
-This project is licensed under the [MIT License](LICENSE.md).
+When the user enters the `foo` route, the `:route` pseudo-selector will be
+applied to the root element (`<html>`).
