@@ -86,3 +86,50 @@ You can also manually set the specificity, like so:
 ```
 
 The background will be `red`, as `3` is a higher specificity than `2`.
+
+## How does it work?
+
+The `:route` / `:route(n)` selector is replaced with a "magic" class name
+selector by [`lib/route-plugin.js`](lib/route-plugin.js). This selector is
+repeated `n` times to raise it to the necessary specificity level.
+
+`n` can either be specified explicitly as `:route(n)`, or when used as `:route`
+will be derived from the depth of route nesting by counting the `/` in the file
+path of the respective `styles.css`. This ensures that rules in nested child
+routes override rule from their parent routes.
+
+```css
+:route {
+  background: yellow;
+}
+:route(3) {
+  background: green;
+}
+:route(1) body {
+  background: blue;
+}
+
+/* becomes */
+
+/* Class name may be repeated more often depending on level of nesting. */
+.css-modules-active-route.css-modules-active-route {
+  background: yellow;
+}
+
+/* With an explicit `n` provided, the class name is repeated that many times. */
+.css-modules-active-route.css-modules-active-route.css-modules-active-route {
+  background: green;
+}
+
+/* Combining with other selectors is possible. */
+.css-modules-active-route body {
+  background: blue;
+}
+```
+
+When the a transition is started or finished the
+[`CSSModulesActiveRouteService`](addon/services/css-modules-active-route.ts)
+resolves the styles for the current route hierarchy via the Ember container
+using the route name. This implies, that you cannot render custom / non-default
+templates for routes,
+[which is deprecated anyway](https://github.com/emberjs/rfcs/blob/master/text/0418-deprecate-route-render-methods.md).
