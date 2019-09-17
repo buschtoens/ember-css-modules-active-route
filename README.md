@@ -18,6 +18,15 @@ ember install ember-css-modules-active-route ember-css-modules
 
 ## Usage
 
+```ts
+Router.map(function() {
+  this.route('foo', function() {
+    this.route('bar');
+  });
+  this.route('qux');
+});
+```
+
 ```css
 /* app/foo/styles.css */
 
@@ -26,5 +35,20 @@ ember install ember-css-modules-active-route ember-css-modules
 }
 ```
 
+```css
+/* app/foo/index/styles.css */
+
+:route {
+  background: red;
+}
+```
+
 When the user enters the `foo` route, the `:route` pseudo-selector will be
-applied to the root element (`<html>`).
+applied to the root element (`<html>`). The background of the page will be
+`red`, as `foo.index` overrides `foo`.
+
+When the user navigates to `foo.bar`, the background will turn `green`, as the
+user has left the `foo.index` route and the override no longer takes effect.
+
+When the user navigates to `qux`, the background will become transparent again,
+as no route styles are active any more.
