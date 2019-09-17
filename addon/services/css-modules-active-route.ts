@@ -69,6 +69,7 @@ export default class CssModulesActiveRouteService extends Service {
     const staleClassNames = oldClassNames.filter(
       name => !newClassNames.includes(name)
     );
+    this.currentClassNames = newClassNames;
 
     // IE11 does not support multiple arguments, so we need to iterate.
     // https://caniuse.com/#search=classlist
