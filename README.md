@@ -53,7 +53,7 @@ user has left the `foo.index` route and the override no longer takes effect.
 When the user navigates to `qux`, the background will become transparent again,
 as no route styles are active any more.
 
-## Combining Selectors
+### Combining Selectors
 
 You can also combine the `:route` selector with other regular selectors. For
 instance, instead of just using `:route`, which targets the `:root` element
@@ -65,7 +65,7 @@ instance, instead of just using `:route`, which targets the `:root` element
 }
 ```
 
-## Specificity
+### Specificity
 
 [CSS Specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity)
 can be a tricky thing. This addon tries to make everything work out of the box.
