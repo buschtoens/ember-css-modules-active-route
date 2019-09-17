@@ -44,7 +44,7 @@ Router.map(function() {
 ```
 
 When the user enters the `foo` route, the `:route` pseudo-selector will be
-applied to the root element (`<html>`). The background of the page will be
+applied to the `:root` element (`<html>`). The background of the page will be
 `red`, as `foo.index` overrides `foo`.
 
 When the user navigates to `foo.bar`, the background will turn `green`, as the
@@ -52,3 +52,37 @@ user has left the `foo.index` route and the override no longer takes effect.
 
 When the user navigates to `qux`, the background will become transparent again,
 as no route styles are active any more.
+
+## Combining Selectors
+
+You can also combine the `:route` selector with other regular selectors. For
+instance, instead of just using `:route`, which targets the `:root` element
+(`<html>`), you can target `<body>` instead:
+
+```css
+:route body {
+  background: red;
+}
+```
+
+## Specificity
+
+[CSS Specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity)
+can be a tricky thing. This addon tries to make everything work out of the box.
+For every level of nesting, the selector specificity will be increased
+automatically. This way, overrides in child routes actually override
+declarations in parent routes, without the source order being relevant.
+
+You can also manually set the specificity, like so:
+
+```css
+:route(3) {
+  background: red;
+}
+
+:route(2) {
+  background: green;
+}
+```
+
+The background will be `red`, as `3` is a higher specificity than `2`.
