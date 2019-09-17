@@ -1,6 +1,6 @@
 {
   "name": "ember-css-modules-active-route",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "`:route` selector to apply styles to the root element, when a route is active.",
   "keywords": [
     "ember-addon",
