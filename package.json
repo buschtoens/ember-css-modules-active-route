@@ -1,14 +1,21 @@
 {
   "name": "ember-css-modules-active-route",
   "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "`:route` selector to apply styles to the root element, when a route is active.",
   "keywords": [
     "ember-addon",
-    "ember-css-modules-plugin"
+    "ember-css-modules-plugin",
+    "route",
+    "routing",
+    "router",
+    "active",
+    "transition",
+    "global",
+    "class"
   ],
-  "repository": "",
+  "repository": "buschtoens/ember-css-modules-active-route",
   "license": "MIT",
-  "author": "",
+  "author": "Jan Buschtöns <jan@buschtoens.me> (https://jan.buschtoens.me)",
   "directories": {
     "doc": "doc",
     "test": "tests"
