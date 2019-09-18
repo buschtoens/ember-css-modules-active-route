@@ -17,6 +17,11 @@ when a route is active.
 ember install ember-css-modules-active-route ember-css-modules
 ```
 
+This is a plugin for [`ember-css-modules`][ember-css-modules], so you need to
+have it installed as well.
+
+[ember-css-modules]: https://github.com/salsify/ember-css-modules
+
 ## Usage
 
 - **`:app-root`**: Maps to the [root element][root-element] of your application.
