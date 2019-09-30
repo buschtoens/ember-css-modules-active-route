@@ -2,16 +2,17 @@ import { getOwner } from '@ember/application';
 import ApplicationInstance from '@ember/application/instance';
 import { assert } from '@ember/debug';
 import EngineInstance from '@ember/engine/instance';
-import { action, computed } from '@ember/object';
+import { action } from '@ember/object';
 import RouteInfo from '@ember/routing/-private/route-info';
 import Transition from '@ember/routing/-private/transition';
 import RouterService from '@ember/routing/router-service';
-import Service, { inject as service } from '@ember/service';
+import Service from '@ember/service';
 
 import {
   addListener,
   removeListener
 } from 'ember-css-modules-active-route/utils/events';
+import { getRootOwner } from 'ember-css-modules-active-route/utils/owner';
 
 type Styles = Record<string, string>;
 
@@ -27,38 +28,36 @@ function resolveElement(elementOrSelector: Element | string) {
   return element!;
 }
 
-export default class CssModulesActiveRouteService extends Service {
-  private rootOwner: ApplicationInstance = (() => {
-    const owner = getOwner(this);
-    if (owner instanceof ApplicationInstance) return owner;
-
-    // @warning: This relies on the implicit fact that there is only one Router
-    // per application. This could potentially break. By then, we hopefully have
-    // a `RouterService` inside Engines.
-    // https://github.com/ember-engines/ember-engines/issues/587
-    return getOwner(owner.lookup('router:main'));
-  })();
-
+export default class CSSModulesActiveRouteService extends Service {
   private router: RouterService & {
     routeWillChange(transition: Transition): void;
     routeDidChange(transition: Transition): void;
-  } = this.rootOwner.lookup('service:router');
-
-  private mountPoint?: string = (() => {
-    const owner = getOwner(this);
-    if (typeof owner.mountPoint === 'string') {
-      return owner.mountPoint;
-    }
-  })();
+  } =
+    // Attempt to get the real `RouterService`, which only works in real
+    // applications, and fallback to the `EngineRouterService`, which works
+    // inside engines.
+    getOwner(this).lookup('service:router') ||
+    getOwner(this).lookup('service:css-modules-active-route/engine-router');
 
   /**
    * The magic pseudo selectors are rewritten to regular class names, so that we
    * can resolve them here.
+   *
+   * This mapping is inherited from the `CSSModulesActiveRouteService` of the
+   * root application, if present.
    */
-  public targetElements = {
-    'css-modules-active-route-app': resolveElement(this.rootOwner.rootElement),
-    'css-modules-active-route-document': document.documentElement
-  };
+  public targetElements = (() => {
+    const rootOwner = getRootOwner(this)!;
+    if (rootOwner !== getOwner(this)) {
+      const rootService = rootOwner.lookup('service:css-modules-active-route');
+      if (rootService) return rootService.targetElements;
+    }
+
+    return {
+      'css-modules-active-route-app': resolveElement(rootOwner.rootElement),
+      'css-modules-active-route-document': document.documentElement
+    };
+  })();
 
   /**
    * This map is used to keep track of the currently applied class names, so
@@ -138,19 +137,10 @@ export default class CssModulesActiveRouteService extends Service {
   private getRouteNamesFromRouteInfo(routeInfo: RouteInfo) {
     const routeNames: string[] = [];
     for (
-      let currentRouteInfo = routeInfo;
-      currentRouteInfo.parent;
+      let currentRouteInfo: RouteInfo | null = routeInfo;
+      currentRouteInfo;
       currentRouteInfo = currentRouteInfo.parent
     ) {
-      if (this.mountPoint) {
-        if (currentRouteInfo.name === this.mountPoint)
-          routeNames.push('application');
-        if (!currentRouteInfo.name.startsWith(`${this.mountPoint}.`)) break;
-        routeNames.push(
-          currentRouteInfo.name.slice(this.mountPoint.length + 1)
-        );
-        continue;
-      }
       routeNames.push(currentRouteInfo.name);
     }
 
