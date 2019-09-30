@@ -1,7 +1,8 @@
 import { getOwner } from '@ember/application';
 import ApplicationInstance from '@ember/application/instance';
 import { assert } from '@ember/debug';
-import { action } from '@ember/object';
+import EngineInstance from '@ember/engine/instance';
+import { action, computed } from '@ember/object';
 import RouteInfo from '@ember/routing/-private/route-info';
 import Transition from '@ember/routing/-private/transition';
 import RouterService from '@ember/routing/router-service';
@@ -27,17 +28,35 @@ function resolveElement(elementOrSelector: Element | string) {
 }
 
 export default class CssModulesActiveRouteService extends Service {
-  @service router!: RouterService & {
+  private rootOwner: ApplicationInstance = (() => {
+    const owner = getOwner(this);
+    if (owner instanceof ApplicationInstance) return owner;
+
+    // @warning: This relies on the implicit fact that there is only one Router
+    // per application. This could potentially break. By then, we hopefully have
+    // a `RouterService` inside Engines.
+    // https://github.com/ember-engines/ember-engines/issues/587
+    return getOwner(owner.lookup('router:main'));
+  })();
+
+  private router: RouterService & {
     routeWillChange(transition: Transition): void;
     routeDidChange(transition: Transition): void;
-  };
+  } = this.rootOwner.lookup('service:router');
+
+  private mountPoint?: string = (() => {
+    const owner = getOwner(this);
+    if (typeof owner.mountPoint === 'string') {
+      return owner.mountPoint;
+    }
+  })();
 
   /**
    * The magic pseudo selectors are rewritten to regular class names, so that we
    * can resolve them here.
    */
   public targetElements = {
-    'css-modules-active-route-app': resolveElement(getOwner(this).rootElement),
+    'css-modules-active-route-app': resolveElement(this.rootOwner.rootElement),
     'css-modules-active-route-document': document.documentElement
   };
 
@@ -123,6 +142,15 @@ export default class CssModulesActiveRouteService extends Service {
       currentRouteInfo.parent;
       currentRouteInfo = currentRouteInfo.parent
     ) {
+      if (this.mountPoint) {
+        if (currentRouteInfo.name === this.mountPoint)
+          routeNames.push('application');
+        if (!currentRouteInfo.name.startsWith(`${this.mountPoint}.`)) break;
+        routeNames.push(
+          currentRouteInfo.name.slice(this.mountPoint.length + 1)
+        );
+        continue;
+      }
       routeNames.push(currentRouteInfo.name);
     }
 
@@ -139,7 +167,7 @@ export default class CssModulesActiveRouteService extends Service {
    * @see https://github.com/emberjs/rfcs/blob/master/text/0418-deprecate-route-render-methods.md
    */
   private resolveStylesForRoute(routeName: string) {
-    const owner: ApplicationInstance = getOwner(this);
+    const owner: ApplicationInstance | EngineInstance = getOwner(this);
     const styles: Styles | undefined = owner.resolveRegistration(
       `styles:${routeName}`
     );
