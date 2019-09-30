@@ -1,7 +1,6 @@
 import { getOwner } from '@ember/application';
 import { assert } from '@ember/debug';
 import { action, computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
 import Evented from '@ember/object/evented';
 import RouteInfo from '@ember/routing/-private/route-info';
 import Transition from '@ember/routing/-private/transition';
@@ -48,8 +47,9 @@ export default class EngineRouterService extends Service.extend(Evented) {
   private engine = getOwner(this);
   private rootApplication = getRootOwner(this)!;
 
-  @reads('engine.mountPoint')
-  private mountPoint!: string;
+  private get mountPoint() {
+    return this.engine.mountPoint;
+  }
 
   @computed('rootApplication')
   private get externalRouter() {

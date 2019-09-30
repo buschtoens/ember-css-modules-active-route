@@ -46,7 +46,10 @@ export default class CSSModulesActiveRouteService extends Service {
    * This mapping is inherited from the `CSSModulesActiveRouteService` of the
    * root application, if present.
    */
-  public targetElements = (() => {
+  public targetElements: {
+    'css-modules-active-route-app': Element;
+    'css-modules-active-route-document': Element;
+  } = (() => {
     const rootOwner = getRootOwner(this)!;
     if (rootOwner !== getOwner(this)) {
       const rootService = rootOwner.lookup('service:css-modules-active-route');
@@ -184,6 +187,6 @@ export default class CSSModulesActiveRouteService extends Service {
 // DO NOT DELETE: this is how TypeScript knows how to look up your services.
 declare module '@ember/service' {
   interface Registry {
-    'css-modules-active-route': CssModulesActiveRouteService;
+    'css-modules-active-route': CSSModulesActiveRouteService;
   }
 }
