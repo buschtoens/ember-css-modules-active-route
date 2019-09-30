@@ -11,5 +11,8 @@
     "ember-css-modules": "*",
     "ember-css-modules-active-route": "*",
     "ember-cli-typescript": "*"
+  },
+  "peerDependencies": {
+    "ember-engines": "*"
   }
 }

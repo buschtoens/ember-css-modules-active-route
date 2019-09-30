@@ -1,9 +1,8 @@
-/* eslint-env node */
 'use strict';
 
 module.exports = function(environment) {
-  let ENV = {
-    modulePrefix: 'dummy-engine',
+  const ENV = {
+    modulePrefix: require('../package').name,
     environment
   };
 
