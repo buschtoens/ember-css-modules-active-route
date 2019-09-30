@@ -32,12 +32,20 @@ export default class CSSModulesActiveRouteService extends Service {
   private router: RouterService & {
     routeWillChange(transition: Transition): void;
     routeDidChange(transition: Transition): void;
-  } =
-    // Attempt to get the real `RouterService`, which only works in real
-    // applications, and fallback to the `EngineRouterService`, which works
-    // inside engines.
-    getOwner(this).lookup('service:router') ||
-    getOwner(this).lookup('service:css-modules-active-route/engine-router');
+  } = (() => {
+    const owner = getOwner(this);
+    const rootOwner = getRootOwner(this)!;
+
+    // If this service is owned by the host application, use the real root
+    // `RouterService`.
+    if (rootOwner === owner) return owner.lookup('service:router');
+
+    // If this service is owned by a routable engine, use the fallback
+    // implementation of a would-be `EngineRouterService`. Once we get a real
+    // version of that service, we can drop this.
+    // @see https://github.com/ember-engines/ember-engines/issues/587
+    return owner.lookup('service:css-modules-active-route/engine-router');
+  })();
 
   /**
    * The magic pseudo selectors are rewritten to regular class names, so that we
