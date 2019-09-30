@@ -1,16 +1,18 @@
 import { getOwner } from '@ember/application';
 import ApplicationInstance from '@ember/application/instance';
 import { assert } from '@ember/debug';
+import EngineInstance from '@ember/engine/instance';
 import { action } from '@ember/object';
 import RouteInfo from '@ember/routing/-private/route-info';
 import Transition from '@ember/routing/-private/transition';
 import RouterService from '@ember/routing/router-service';
-import Service, { inject as service } from '@ember/service';
+import Service from '@ember/service';
 
 import {
   addListener,
   removeListener
 } from 'ember-css-modules-active-route/utils/events';
+import { getRootOwner } from 'ember-css-modules-active-route/utils/owner';
 
 type Styles = Record<string, string>;
 
@@ -26,20 +28,39 @@ function resolveElement(elementOrSelector: Element | string) {
   return element!;
 }
 
-export default class CssModulesActiveRouteService extends Service {
-  @service router!: RouterService & {
+export default class CSSModulesActiveRouteService extends Service {
+  private router: RouterService & {
     routeWillChange(transition: Transition): void;
     routeDidChange(transition: Transition): void;
-  };
+  } =
+    // Attempt to get the real `RouterService`, which only works in real
+    // applications, and fallback to the `EngineRouterService`, which works
+    // inside engines.
+    getOwner(this).lookup('service:router') ||
+    getOwner(this).lookup('service:css-modules-active-route/engine-router');
 
   /**
    * The magic pseudo selectors are rewritten to regular class names, so that we
    * can resolve them here.
+   *
+   * This mapping is inherited from the `CSSModulesActiveRouteService` of the
+   * root application, if present.
    */
-  public targetElements = {
-    'css-modules-active-route-app': resolveElement(getOwner(this).rootElement),
-    'css-modules-active-route-document': document.documentElement
-  };
+  public targetElements: {
+    'css-modules-active-route-app': Element;
+    'css-modules-active-route-document': Element;
+  } = (() => {
+    const rootOwner = getRootOwner(this)!;
+    if (rootOwner !== getOwner(this)) {
+      const rootService = rootOwner.lookup('service:css-modules-active-route');
+      if (rootService) return rootService.targetElements;
+    }
+
+    return {
+      'css-modules-active-route-app': resolveElement(rootOwner.rootElement),
+      'css-modules-active-route-document': document.documentElement
+    };
+  })();
 
   /**
    * This map is used to keep track of the currently applied class names, so
@@ -119,8 +140,8 @@ export default class CssModulesActiveRouteService extends Service {
   private getRouteNamesFromRouteInfo(routeInfo: RouteInfo) {
     const routeNames: string[] = [];
     for (
-      let currentRouteInfo = routeInfo;
-      currentRouteInfo.parent;
+      let currentRouteInfo: RouteInfo | null = routeInfo;
+      currentRouteInfo;
       currentRouteInfo = currentRouteInfo.parent
     ) {
       routeNames.push(currentRouteInfo.name);
@@ -139,7 +160,7 @@ export default class CssModulesActiveRouteService extends Service {
    * @see https://github.com/emberjs/rfcs/blob/master/text/0418-deprecate-route-render-methods.md
    */
   private resolveStylesForRoute(routeName: string) {
-    const owner: ApplicationInstance = getOwner(this);
+    const owner: ApplicationInstance | EngineInstance = getOwner(this);
     const styles: Styles | undefined = owner.resolveRegistration(
       `styles:${routeName}`
     );
@@ -166,6 +187,6 @@ export default class CssModulesActiveRouteService extends Service {
 // DO NOT DELETE: this is how TypeScript knows how to look up your services.
 declare module '@ember/service' {
   interface Registry {
-    'css-modules-active-route': CssModulesActiveRouteService;
+    'css-modules-active-route': CSSModulesActiveRouteService;
   }
 }

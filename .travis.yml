@@ -38,14 +38,14 @@ jobs:
       install:
         - yarn install --non-interactive
       script:
-        - yarn lint:hbs
-        - yarn lint:js
-        - yarn lint:types
-        - yarn test
+        - yarn workspace ember-css-modules-active-route lint:hbs
+        - yarn workspace ember-css-modules-active-route lint:js
+        - yarn workspace ember-css-modules-active-route lint:types
+        - yarn workspace ember-css-modules-active-route test
 
     - name: "Floating Dependencies"
       script:
-        - yarn test
+        - yarn workspace ember-css-modules-active-route test
 
     # we recommend new addons test the current and previous LTS
     # as well as latest stable release (bonus points to beta/canary)
@@ -65,4 +65,4 @@ install:
   - yarn install --no-lockfile --non-interactive
 
 script:
-  - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO
+  - yarn workspace ember-css-modules-active-route ember try:one $EMBER_TRY_SCENARIO

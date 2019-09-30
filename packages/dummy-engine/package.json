@@ -1,0 +1,18 @@
+{
+  "name": "dummy-engine",
+  "version": "0.0.0",
+  "keywords": [
+    "ember-addon",
+    "ember-engine"
+  ],
+  "dependencies": {
+    "ember-cli-babel": "*",
+    "ember-cli-htmlbars": "*",
+    "ember-css-modules": "*",
+    "ember-css-modules-active-route": "*",
+    "ember-cli-typescript": "*"
+  },
+  "peerDependencies": {
+    "ember-engines": "*"
+  }
+}

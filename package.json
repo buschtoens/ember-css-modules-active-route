@@ -1,84 +1,10 @@
 {
-  "name": "ember-css-modules-active-route",
-  "version": "0.3.1",
-  "description": "`:app-root` and `:document-root` selector to apply styles to the root element, when a route is active.",
-  "keywords": [
-    "ember-addon",
-    "ember-css-modules-plugin",
-    "route",
-    "routing",
-    "router",
-    "active",
-    "transition",
-    "global",
-    "class"
-  ],
-  "repository": "buschtoens/ember-css-modules-active-route",
-  "license": "MIT",
-  "author": "Jan Buschtöns <jan@buschtoens.me> (https://jan.buschtoens.me)",
-  "directories": {
-    "doc": "doc",
-    "test": "tests"
-  },
   "scripts": {
     "build": "ember build",
-    "lint:hbs": "ember-template-lint .",
-    "lint:js": "eslint --ext ts,js .",
-    "lint:types": "tsc --noEmit",
-    "start": "ember serve",
-    "test": "ember test",
-    "test:all": "ember try:each",
-    "prepack": "ember ts:precompile",
-    "postpack": "ember ts:clean"
+    "lint:js": "eslint --ext ts,js ."
   },
-  "dependencies": {
-    "ember-cli-babel": "^7.12.0",
-    "ember-cli-typescript": "^3.0.0",
-    "ember-decorators-polyfill": "^1.0.6"
-  },
-  "devDependencies": {
-    "@clark/eslint-config-ember": "^1.14.1",
-    "@clark/eslint-config-ember-typescript": "^1.14.1",
-    "@clark/eslint-config-node": "^1.14.1",
-    "@ember/optional-features": "^1.0.0",
-    "@types/ember": "^3.1.0",
-    "@types/ember-qunit": "^3.4.6",
-    "@types/ember-resolver": "^5.0.6",
-    "@types/ember__test-helpers": "^0.7.8",
-    "@types/qunit": "^2.9.0",
-    "@types/rsvp": "^4.0.3",
-    "broccoli-asset-rev": "^3.0.0",
-    "ember-cli": "~3.13.1",
-    "ember-cli-dependency-checker": "^3.1.0",
-    "ember-cli-htmlbars": "^4.0.2",
-    "ember-cli-htmlbars-inline-precompile": "^3.0.0",
-    "ember-cli-inject-live-reload": "^2.0.1",
-    "ember-cli-sri": "^2.1.1",
-    "ember-cli-typescript-blueprints": "^3.0.0",
-    "ember-cli-uglify": "^3.0.0",
-    "ember-css-modules": "^1.2.1",
-    "ember-disable-prototype-extensions": "^1.1.3",
-    "ember-export-application-global": "^2.0.0",
-    "ember-load-initializers": "^2.0.0",
-    "ember-maybe-import-regenerator": "^0.1.6",
-    "ember-qunit": "^4.4.1",
-    "ember-resolver": "^5.3.0",
-    "ember-source": "~3.13.2",
-    "ember-source-channel-url": "^2.0.1",
-    "ember-template-lint": "^1.5.3",
-    "ember-try": "^1.0.0",
-    "eslint": "^6.5.0",
-    "loader.js": "^4.7.0",
-    "qunit-dom": "^0.9.0",
-    "typescript": "^3.6.3"
-  },
-  "engines": {
-    "node": "8.* || >= 10.*"
-  },
-  "ember-addon": {
-    "configPath": "tests/dummy/config"
-  },
-  "peerDependencies": {
-    "ember-css-modules": "^1.2.1"
-  }
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
 }
