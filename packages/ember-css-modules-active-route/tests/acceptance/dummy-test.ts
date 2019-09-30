@@ -28,4 +28,38 @@ module('Acceptance | dummy', function(hooks) {
 
     await visit('/');
   });
+
+  test('it works with engines', async function(assert) {
+    const rootElement = this.element;
+
+    await visit('/');
+    assert.dom(rootElement).hasStyle({
+      backgroundColor: 'rgba(0, 0, 0, 0)',
+      color: 'rgb(0, 0, 0)'
+    });
+
+    await visit('/dummy-engine');
+    assert.dom(rootElement).hasStyle({
+      backgroundColor: 'rgb(200, 100, 100)',
+      color: 'rgb(0, 0, 0)'
+    });
+
+    await visit('/dummy-engine/foo');
+    assert.dom(rootElement).hasStyle({
+      backgroundColor: 'rgb(200, 200, 100)',
+      color: 'rgb(0, 0, 0)'
+    });
+
+    await visit('/dummy-engine/foo/bar');
+    assert.dom(rootElement).hasStyle({
+      backgroundColor: 'rgb(200, 0, 100)',
+      color: 'rgb(0, 100, 100)'
+    });
+
+    await visit('/');
+    assert.dom(rootElement).hasStyle({
+      backgroundColor: 'rgba(0, 0, 0, 0)',
+      color: 'rgb(0, 0, 0)'
+    });
+  });
 });
