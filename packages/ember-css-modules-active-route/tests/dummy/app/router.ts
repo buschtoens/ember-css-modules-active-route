@@ -11,4 +11,6 @@ Router.map(function() {
   this.route('foo', function() {
     this.route('bar');
   });
+
+  this.mount('dummy-engine');
 });
